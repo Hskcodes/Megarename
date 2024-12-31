@@ -9,8 +9,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Mega login credentials
-email = 'aapka_email@gmail.com'  # Apna email daalein
-password = 'aapka_password'  # Apna password daalein
+email = 'prior.puffin.fwzf@instantletter.net'  # Apna email daalein
+password = 'Lahore123'  # Apna password daalein
 
 # Mega instance
 mega = Mega()
