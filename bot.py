@@ -51,7 +51,7 @@ async def rename(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text("Failed to log in to Mega. Please use /login to log in first.")
             return
 
-        folder = m.get_folder(folder_url)
+        folder = m.get_node(folder_url)
         if not folder:
             await update.message.reply_text("Folder not found. Please check the folder URL and try again.")
             return
@@ -59,7 +59,7 @@ async def rename(update: Update, context: CallbackContext) -> None:
         m.rename(folder, new_folder_name)
         await update.message.reply_text(f"Folder renamed to: {new_folder_name}")
 
-        files = m.get_files_in_folder(folder)
+        files = m.get_files(folder)
         for file in files:
             new_file_name = f"{new_folder_name}_{file['name']}"
             m.rename(file, new_file_name)
