@@ -1,6 +1,6 @@
 import logging
 from mega import Mega
-from telegram import Update
+from telegram import Update  # Yeh line add ki gayi hai
 from telegram.ext import Updater, CommandHandler, CallbackContext
 
 # Bot Token (Telegram)
@@ -47,8 +47,8 @@ def rename(update: Update, context: CallbackContext) -> None:
         # Log in to Mega
         m = mega_login()
 
-        # Get folder ID using Mega API's `find` method (search folder by URL)
-        folder = m.find(folder_url)[0]  # Assumes the first result is the folder you're looking for
+        # Get folder ID and rename folder
+        folder = m.get_folder(folder_url)  # Assuming the function is correct for getting folder
         
         # Renaming the main folder
         m.rename(folder, new_folder_name)
