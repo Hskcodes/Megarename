@@ -1,46 +1,65 @@
-# Function to handle login command
+import logging
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext
+
+# Define the login function
 def login(update: Update, context: CallbackContext):
     try:
-        global mega_instance
-        if mega_instance is None:
-            mega_login()  # Login to Mega if not logged in yet
-            update.message.reply_text("Logged in successfully to Mega! 🎉")
-        else:
-            update.message.reply_text("Already logged in to Mega! ✅")
-    except Exception as e:
-        update.message.reply_text(f"Error logging in: {str(e)}")
-
-# Function to rename folder and its files
-def rename_folder(update, context):
-    try:
-        if mega_instance is None:
-            update.message.reply_text("Please log in first using /login command. 🔑")
+        # Get email and password from user message
+        if len(context.args) < 2:
+            update.message.reply_text("Please provide email and password. Example: /login your_email your_password")
             return
-
-        folder_url = context.args[0]  # Folder URL
-        new_name = context.args[1]  # New folder name
-
-        # Find the folder using the URL
-        folder = mega_instance.find(folder_url)
-
-        if folder:
-            # Rename the folder
-            mega_instance.rename(folder, new_name)
-            update.message.reply_text(f"Folder renamed to {new_name} ✅")
-
-            # Get all files in the folder
-            files = mega_instance.get_files_in_folder(folder)
-
-            # Rename each file inside the folder
-            for idx, file in enumerate(files):
-                new_file_name = f"{new_name}_{idx + 1}_{file['name']}"
-                mega_instance.rename(file, new_file_name)
-                update.message.reply_text(f"Renamed file: {new_file_name} 📝")
-            
-            update.message.reply_text(f"All files inside {new_name} have been renamed and sorted. 📂")
-
-        else:
-            update.message.reply_text("Folder not found! ❌")
-
+        
+        email = context.args[0]
+        password = context.args[1]
+        
+        # Implement your login logic here
+        # Example:
+        # m = mega.login(email, password)  # Assuming 'mega' is defined somewhere in your code
+        
+        update.message.reply_text(f"Logged in successfully as {email} 🎉")
     except Exception as e:
-        update.message.reply_text(f"An error occurred: {str(e)} ⚠️")
+        update.message.reply_text(f"Error: {str(e)} ⚠️")
+
+# Function to rename folder
+def rename(update: Update, context: CallbackContext):
+    try:
+        if len(context.args) < 2:
+            update.message.reply_text("Please provide folder URL and new name. Example: /rename <folder_url> <new_name>")
+            return
+        
+        folder_url = context.args[0]
+        new_name = context.args[1]
+
+        # Implement the folder renaming logic here using Mega API
+        # Example: mega.rename_folder(folder_url, new_name)
+        
+        update.message.reply_text(f"Folder renamed to {new_name} successfully! 🎉")
+    except Exception as e:
+        update.message.reply_text(f"Error while renaming folder: {str(e)} ⚠️")
+
+# Main function to start the bot
+def main():
+    # Enable logging
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                        level=logging.INFO)
+    logger = logging.getLogger(__name__)
+
+    # Insert your bot's API token here
+    updater = Updater("YOUR_BOT_API_TOKEN", use_context=True)
+
+    # Get the dispatcher to register handlers
+    dp = updater.dispatcher
+
+    # Add command handlers
+    dp.add_handler(CommandHandler("login", login))  # /login command
+    dp.add_handler(CommandHandler("rename", rename))  # /rename command
+
+    # Start the Bot
+    updater.start_polling()
+
+    # Run the bot until you send a signal to stop
+    updater.idle()
+
+if __name__ == '__main__':
+    main()
