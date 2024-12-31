@@ -2,6 +2,7 @@ import logging
 from mega import Mega
 from telegram import Update
 from telegram.ext import Application, CommandHandler, CallbackContext
+import re
 
 # Bot Token (Telegram)
 TOKEN = '6934514903:AAHLVkYqPEwyIZiyqEhJocOrjDYwTk9ue8Y'
@@ -23,6 +24,15 @@ def mega_login():
     except Exception as e:
         logger.error(f"Error logging in to Mega: {e}")
         return None
+
+# Function to extract folder ID and key from Mega URL
+def extract_folder_id_and_key(url: str):
+    # Using regex to extract folder ID and key
+    match = re.match(r"https://mega.nz/folder/([A-Za-z0-9]+)#([A-Za-z0-9_-]+)", url)
+    if match:
+        return match.group(1), match.group(2)
+    else:
+        return None, None
 
 # Start command
 async def start(update: Update, context: CallbackContext) -> None:
@@ -51,8 +61,14 @@ async def rename(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text("Failed to log in to Mega. Please use /login to log in first.")
             return
 
-        # Getting the folder using the URL
-        folder = m.find(folder_url)  # Use the `find` method to search for the folder by URL
+        # Extract folder ID and key from the URL
+        folder_id, folder_key = extract_folder_id_and_key(folder_url)
+        if not folder_id or not folder_key:
+            await update.message.reply_text("Invalid folder URL format. Please check the URL and try again.")
+            return
+
+        # Get folder from Mega using extracted folder ID
+        folder = m.get_folder(folder_id)  # Fetching the folder by ID
         if not folder:
             await update.message.reply_text("Folder not found. Please check the folder URL and try again.")
             return
@@ -90,3 +106,4 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
+    
